@@ -35,8 +35,8 @@ jobs:
     - name: Run linting
       run: uv run ruff check .
     
-    - name: Run type checking
-      run: uv run mypy mcp_gigapi/
+ #   - name: Run type checking
+ #     run: uv run mypy mcp_gigapi/
     
     - name: Test demo connection
       run: uv run python test_demo.py

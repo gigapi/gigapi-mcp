@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "mcp-gigapi": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--with",
+        "mcp-gigapi",
+        "--python",
+        "3.13",
+        "mcp-gigapi"
+      ],
+      "env": {
+        "GIGAPI_HOST": "localhost",
+        "GIGAPI_PORT": "7971",
+        "GIGAPI_TIMEOUT": "30",
+        "GIGAPI_VERIFY_SSL": "false",
+        "GIGAPI_DEFAULT_DATABASE": "mydb",
+        "GIGAPI_MCP_SERVER_TRANSPORT": "stdio"
+      }
+    }
+  }
+} 

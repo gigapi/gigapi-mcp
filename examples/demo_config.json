@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "mcp-gigapi": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--with",
+        "mcp-gigapi",
+        "--python",
+        "3.13",
+        "mcp-gigapi"
+      ],
+      "env": {
+        "GIGAPI_HOST": "gigapi.fly.dev",
+        "GIGAPI_PORT": "443",
+        "GIGAPI_TIMEOUT": "30",
+        "GIGAPI_VERIFY_SSL": "true",
+        "GIGAPI_DEFAULT_DATABASE": "mydb",
+        "GIGAPI_MCP_SERVER_TRANSPORT": "stdio"
+      }
+    }
+  }
+} 

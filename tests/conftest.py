@@ -1,8 +1,9 @@
 """Pytest configuration and fixtures."""
 
 import os
-import pytest
 from unittest.mock import Mock
+
+import pytest
 
 from mcp_gigapi.client import GigAPIClient
 from mcp_gigapi.tools import GigAPITools
@@ -45,9 +46,9 @@ def setup_test_env():
     os.environ["GIGAPI_PORT"] = "7971"
     os.environ["GIGAPI_TIMEOUT"] = "10"
     os.environ["GIGAPI_VERIFY_SSL"] = "false"
-    
+
     yield
-    
+
     # Clean up environment variables
     for key in ["GIGAPI_HOST", "GIGAPI_PORT", "GIGAPI_TIMEOUT", "GIGAPI_VERIFY_SSL"]:
         if key in os.environ:
@@ -75,4 +76,4 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.integration)
         # Mark unit tests
         elif "test_client" in item.nodeid or "test_tools" in item.nodeid:
-            item.add_marker(pytest.mark.unit) 
+            item.add_marker(pytest.mark.unit)

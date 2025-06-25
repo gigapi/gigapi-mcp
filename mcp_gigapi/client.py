@@ -54,12 +54,12 @@ class GigAPIClient:
         self.base_url = f"{protocol}://{host}:{port}"
         self.timeout = timeout
         self.verify_ssl = verify_ssl
-        
+
         # Setup authentication if provided
         self.auth = None
         if username and password:
             self.auth = (username, password)
-        
+
         # Setup session with default headers
         self.session = requests.Session()
         self.session.headers.update({
@@ -68,9 +68,9 @@ class GigAPIClient:
         })
 
     def _make_request(
-        self, 
-        method: str, 
-        endpoint: str, 
+        self,
+        method: str,
+        endpoint: str,
         data: Optional[Dict[str, Any]] = None,
         params: Optional[Dict[str, Any]] = None,
         **kwargs
@@ -110,7 +110,7 @@ class GigAPIClient:
             return response
         except requests.exceptions.RequestException as e:
             logger.error(f"Request failed: {e}")
-            raise GigAPIClientError(f"Request failed: {e}")
+            raise GigAPIClientError(f"Request failed: {e}") from e
 
     def health_check(self) -> Dict[str, Any]:
         """Check GigAPI server health.
@@ -142,7 +142,7 @@ class GigAPIClient:
         """
         data = {"query": query}
         params = {"db": database, "format": "ndjson"}
-        
+
         response = self._make_request("POST", "/query", data=data, params=params)
         try:
             # Handle NDJSON response (one JSON object per line)
@@ -156,13 +156,13 @@ class GigAPIClient:
                     except json.JSONDecodeError as e:
                         logger.error(f"Failed to parse NDJSON line: {line}, error: {e}")
                         continue
-            
+
             logger.debug(f"/query NDJSON response: {results}")
             return QueryResponse(results=results, error=None)
-            
+
         except Exception as e:
             logger.error(f"Failed to parse /query response: {e}")
-            raise GigAPIClientError(f"Failed to parse /query response: {response.text}")
+            raise GigAPIClientError(f"Failed to parse /query response: {response.text}") from e
 
     def write_data(self, database: str, data: str) -> Dict[str, Any]:
         """Write data using InfluxDB Line Protocol.
@@ -176,12 +176,12 @@ class GigAPIClient:
         """
         params = {"db": database}
         headers = {"Content-Type": "text/plain"}
-        
+
         response = self._make_request(
-            "POST", 
-            "/write", 
-            data=data, 
-            params=params, 
+            "POST",
+            "/write",
+            data=data,
+            params=params,
             headers=headers
         )
         return response.json()
@@ -197,7 +197,7 @@ class GigAPIClient:
         logger.debug(f"Raw SHOW DATABASES response: {response}")
         if response.error:
             raise GigAPIClientError(f"Failed to list databases: {response.error}")
-        
+
         # Extract database names from NDJSON results
         databases = []
         for result in response.results:
@@ -207,7 +207,7 @@ class GigAPIClient:
                 databases.append(result["name"])
             elif "databases" in result:
                 databases.extend(result["databases"])
-        
+
         return databases
 
     def list_tables(self, database: str) -> List[str]:
@@ -224,7 +224,7 @@ class GigAPIClient:
         logger.debug(f"Raw SHOW TABLES response: {response}")
         if response.error:
             raise GigAPIClientError(f"Failed to list tables: {response.error}")
-        
+
         # Extract table names from NDJSON results
         tables = []
         for result in response.results:
@@ -234,7 +234,7 @@ class GigAPIClient:
                 tables.append(result["name"])
             elif "tables" in result:
                 tables.extend(result["tables"])
-        
+
         return tables
 
     def get_table_schema(self, database: str, table: str) -> List[Dict[str, Any]]:
@@ -249,8 +249,8 @@ class GigAPIClient:
         """
         query = f"DESCRIBE {table}"
         response = self.execute_query(query, database)
-        
+
         if response.error:
             raise GigAPIClientError(f"Failed to get table schema: {response.error}")
-        
-        return response.results 
+
+        return response.results

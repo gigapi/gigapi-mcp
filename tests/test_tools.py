@@ -1,7 +1,7 @@
 """Tests for GigAPI MCP tools using the public demo service."""
 
+
 import pytest
-from unittest.mock import Mock, patch
 
 from mcp_gigapi.client import GigAPIClient
 from mcp_gigapi.tools import GigAPITools, create_tools
@@ -28,7 +28,7 @@ class TestGigAPITools:
     def test_health_check(self, tools):
         """Test health check with demo service."""
         result = tools.health_check()
-        
+
         assert result["success"] is True
         assert result["status"] == "healthy"
         assert "health" in result
@@ -36,7 +36,7 @@ class TestGigAPITools:
     def test_ping(self, tools):
         """Test ping with demo service."""
         result = tools.ping()
-        
+
         assert result["success"] is True
         assert result["status"] == "connected"
         assert "response" in result
@@ -44,7 +44,7 @@ class TestGigAPITools:
     def test_list_databases(self, tools):
         """Test listing databases with demo service."""
         result = tools.list_databases()
-        
+
         assert result["success"] is True
         assert "databases" in result
         assert "count" in result
@@ -57,9 +57,9 @@ class TestGigAPITools:
         db_result = tools.list_databases()
         if db_result["success"] and db_result["databases"]:
             database = db_result["databases"][0]
-            
+
             result = tools.list_tables(database)
-            
+
             assert result["success"] is True
             assert "tables" in result
             assert "count" in result
@@ -72,9 +72,9 @@ class TestGigAPITools:
         db_result = tools.list_databases()
         if db_result["success"] and db_result["databases"]:
             database = db_result["databases"][0]
-            
+
             result = tools.run_select_query("SELECT 1 as test", database)
-            
+
             assert result["success"] is True
             assert "results" in result
             assert result["query"] == "SELECT 1 as test"
@@ -86,9 +86,9 @@ class TestGigAPITools:
         db_result = tools.list_databases()
         if db_result["success"] and db_result["databases"]:
             database = db_result["databases"][0]
-            
+
             result = tools.run_select_query("SHOW TABLES", database)
-            
+
             assert result["success"] is True
             assert "results" in result
             assert result["query"] == "SHOW TABLES"
@@ -100,11 +100,11 @@ class TestGigAPITools:
         db_result = tools.list_databases()
         if db_result["success"] and db_result["databases"]:
             database = db_result["databases"][0]
-            
+
             table_result = tools.list_tables(database)
             if table_result["success"] and table_result["tables"]:
                 table = table_result["tables"][0]
-                
+
                 result = tools.get_table_schema(database, table)
                 if not result["success"]:
                     assert "error" in result
@@ -120,9 +120,9 @@ class TestGigAPITools:
         db_result = tools.list_databases()
         if db_result["success"] and db_result["databases"]:
             database = db_result["databases"][0]
-            
+
             result = tools.run_select_query("INVALID SQL QUERY", database)
-            
+
             # Should handle the error gracefully
             assert "success" in result
             # The query might fail, but we should get a proper error response
@@ -137,19 +137,19 @@ class TestCreateTools:
         """Test creating MCP tools."""
         client = GigAPIClient()
         tools = create_tools(client)
-        
+
         # Check that we have the expected tools
         tool_names = [tool.name for tool in tools]
         expected_tools = [
             "run_select_query",
-            "list_databases", 
+            "list_databases",
             "list_tables",
             "get_table_schema",
             "write_data",
             "health_check",
             "ping"
         ]
-        
+
         for expected_tool in expected_tools:
             assert expected_tool in tool_names
 
@@ -157,7 +157,7 @@ class TestCreateTools:
         """Test that tools have proper descriptions."""
         client = GigAPIClient()
         tools = create_tools(client)
-        
+
         for tool in tools:
             assert tool.description is not None
             assert len(tool.description) > 0
@@ -166,7 +166,7 @@ class TestCreateTools:
         """Test that tools have proper input schemas."""
         client = GigAPIClient()
         tools = create_tools(client)
-        
+
         for tool in tools:
             assert tool.inputSchema is not None
 
@@ -195,17 +195,17 @@ class TestIntegrationWithDemo:
         # 1. Health check
         health = tools.health_check()
         assert health["success"] is True
-        
+
         # 2. List databases
         databases = tools.list_databases()
         assert databases["success"] is True
         assert len(databases["databases"]) > 0
-        
+
         # 3. List tables in first database
         database = databases["databases"][0]
         tables = tools.list_tables(database)
         assert tables["success"] is True
-        
+
         # 4. Run a simple query
         query_result = tools.run_select_query("SELECT 1 as test", database)
         assert query_result["success"] is True
@@ -216,16 +216,16 @@ class TestIntegrationWithDemo:
         db_result = tools.list_databases()
         if db_result["success"] and db_result["databases"]:
             database = db_result["databases"][0]
-            
+
             # Test various query types
             queries = [
                 "SELECT 1 as test",
                 "SHOW TABLES",
                 "SELECT count(*) as total FROM (SELECT 1 as x)"
             ]
-            
+
             for query in queries:
                 result = tools.run_select_query(query, database)
                 assert result["success"] is True
                 assert result["query"] == query
-                assert result["database"] == database 
+                assert result["database"] == database

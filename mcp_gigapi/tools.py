@@ -1,8 +1,7 @@
 """MCP tools for GigAPI operations."""
 
-import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from mcp import Tool
 from pydantic import BaseModel, Field
@@ -55,13 +54,13 @@ class GigAPITools:
         """
         try:
             response = self.client.execute_query(sql, database)
-            
+
             if response.error:
                 return {
                     "error": response.error,
                     "success": False
                 }
-            
+
             return {
                 "results": response.results,
                 "success": True,
@@ -230,7 +229,7 @@ def create_tools(client: GigAPIClient) -> List[Tool]:
         List of MCP tools
     """
     tools_instance = GigAPITools(client)
-    
+
     return [
         Tool(
             name="run_select_query",
@@ -276,4 +275,4 @@ def create_tools(client: GigAPIClient) -> List[Tool]:
             inputSchema={},
             handler=lambda _: tools_instance.ping(),
         ),
-    ] 
+    ]

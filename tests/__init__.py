@@ -1,1 +1,1 @@
-"""Tests for mcp-gigapi.""" 
+"""Tests for mcp-gigapi."""

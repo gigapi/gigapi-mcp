@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 from mcp import ServerSession, StdioServerParameters
 
@@ -33,7 +33,7 @@ class GigAPIMCPServer:
         try:
             # Validate configuration
             self.config.validate()
-            
+
             # Initialize GigAPI client
             self.client = GigAPIClient(
                 host=self.config.host,
@@ -43,20 +43,20 @@ class GigAPIMCPServer:
                 timeout=self.config.timeout,
                 verify_ssl=self.config.verify_ssl,
             )
-            
+
             # Test connection
             await self._test_connection()
-            
+
             # Create MCP server
             self.server = ServerSession("gigapi")
-            
+
             # Register tools
             tools = create_tools(self.client)
             for tool in tools:
                 self.server.tool(tool)
-            
+
             logger.info("GigAPI MCP server initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize GigAPI MCP server: {e}")
             raise
@@ -68,7 +68,7 @@ class GigAPIMCPServer:
             response = self.client.ping()
             logger.info(f"Successfully connected to GigAPI at {self.config.base_url}")
             logger.info(f"Ping response: {response}")
-            
+
         except Exception as e:
             logger.error(f"Failed to connect to GigAPI: {e}")
             raise
@@ -77,13 +77,13 @@ class GigAPIMCPServer:
         """Run the MCP server."""
         if not self.server:
             raise RuntimeError("Server not initialized")
-        
+
         # Create server parameters based on transport
         if self.config.transport == "stdio":
             params = StdioServerParameters()
         else:
             raise ValueError(f"Unsupported transport: {self.config.transport}")
-        
+
         # Run the server
         async with self.server.run_stdio(params) as stream:
             logger.info("GigAPI MCP server started")
@@ -110,4 +110,4 @@ if __name__ == "__main__":
         print("Server stopped by user")
     except Exception as e:
         print(f"Server error: {e}")
-        sys.exit(1) 
+        sys.exit(1)

@@ -1,8 +1,9 @@
 """Tests for GigAPI configuration."""
 
 import os
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from mcp_gigapi.config import GigAPIConfig, get_config
 
@@ -14,7 +15,7 @@ class TestGigAPIConfig:
         """Test configuration initialization with defaults."""
         with patch.dict(os.environ, {}, clear=True):
             config = GigAPIConfig()
-            
+
             assert config.host == "localhost"
             assert config.port == 7971
             assert config.username is None
@@ -37,10 +38,10 @@ class TestGigAPIConfig:
             "GIGAPI_DEFAULT_DATABASE": "testdb",
             "GIGAPI_ENABLED": "true"
         }
-        
+
         with patch.dict(os.environ, env_vars, clear=True):
             config = GigAPIConfig()
-            
+
             assert config.host == "test-host.com"
             assert config.port == 8080
             assert config.username == "testuser"
@@ -56,7 +57,7 @@ class TestGigAPIConfig:
         config.host = "test.com"
         config.port = 8080
         config.verify_ssl = False
-        
+
         assert config.base_url == "http://test.com:8080"
 
     def test_base_url_https(self):
@@ -65,7 +66,7 @@ class TestGigAPIConfig:
         config.host = "test.com"
         config.port = 8443
         config.verify_ssl = True
-        
+
         assert config.base_url == "https://test.com:8443"
 
     def test_validate_success(self):
@@ -75,7 +76,7 @@ class TestGigAPIConfig:
         config.port = 8080
         config.timeout = 30
         config.enabled = True
-        
+
         # Should not raise any exception
         config.validate()
 
@@ -83,7 +84,7 @@ class TestGigAPIConfig:
         """Test validation when disabled."""
         config = GigAPIConfig()
         config.enabled = False
-        
+
         with pytest.raises(ValueError, match="GigAPI is disabled in configuration"):
             config.validate()
 
@@ -92,7 +93,7 @@ class TestGigAPIConfig:
         config = GigAPIConfig()
         config.host = ""
         config.enabled = True
-        
+
         with pytest.raises(ValueError, match="GIGAPI_HOST is required"):
             config.validate()
 
@@ -102,7 +103,7 @@ class TestGigAPIConfig:
         config.host = "test.com"
         config.port = 0
         config.enabled = True
-        
+
         with pytest.raises(ValueError, match="GIGAPI_PORT must be between 1 and 65535"):
             config.validate()
 
@@ -112,7 +113,7 @@ class TestGigAPIConfig:
         config.host = "test.com"
         config.port = 70000
         config.enabled = True
-        
+
         with pytest.raises(ValueError, match="GIGAPI_PORT must be between 1 and 65535"):
             config.validate()
 
@@ -123,7 +124,7 @@ class TestGigAPIConfig:
         config.port = 8080
         config.timeout = 0
         config.enabled = True
-        
+
         with pytest.raises(ValueError, match="GIGAPI_TIMEOUT must be positive"):
             config.validate()
 
@@ -136,9 +137,9 @@ class TestGigAPIConfig:
         config.password = "pass"
         config.timeout = 30  # Ensure timeout is set to 30
         config.verify_ssl = True  # Ensure verify_ssl is set to True
-        
+
         result = config.to_dict()
-        
+
         assert result["host"] == "test.com"
         assert result["port"] == 8080
         assert result["username"] == "user"
@@ -155,9 +156,9 @@ class TestGigAPIConfig:
         config.port = 8080
         config.username = "user"
         config.password = None
-        
+
         result = config.to_dict()
-        
+
         assert result["password"] is None
 
 
@@ -170,4 +171,4 @@ class TestGetConfig:
             config = get_config()
             assert isinstance(config, GigAPIConfig)
             assert config.host == "localhost"
-            assert config.port == 7971 
+            assert config.port == 7971

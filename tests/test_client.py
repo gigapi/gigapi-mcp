@@ -1,7 +1,8 @@
 """Tests for GigAPI client."""
 
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
 import requests
 
 from mcp_gigapi.client import GigAPIClient, GigAPIClientError, QueryResponse
@@ -111,7 +112,7 @@ class TestGigAPIClient:
         mock_request.side_effect = requests.exceptions.RequestException("Connection failed")
 
         client = GigAPIClient()
-        
+
         with pytest.raises(GigAPIClientError, match="Request failed: Connection failed"):
             client.ping()
 
@@ -135,4 +136,4 @@ class TestQueryResponse:
             error="Query failed"
         )
         assert response.results == []
-        assert response.error == "Query failed" 
+        assert response.error == "Query failed"

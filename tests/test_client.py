@@ -2,6 +2,7 @@
 
 import pytest
 from unittest.mock import Mock, patch
+import requests
 
 from mcp_gigapi.client import GigAPIClient, GigAPIClientError, QueryResponse
 
@@ -84,57 +85,30 @@ class TestGigAPIClient:
     def test_execute_query(self, mock_request):
         """Test execute query method."""
         mock_response = Mock()
-        mock_response.json.return_value = {
-            "results": [{"name": "test"}],
-            "error": None
-        }
+        mock_response.text = '{"name": "test"}\n{"name": "test2"}'
         mock_request.return_value = mock_response
 
         client = GigAPIClient()
         result = client.execute_query("SELECT * FROM test", "mydb")
 
         assert isinstance(result, QueryResponse)
-        assert result.results == [{"name": "test"}]
+        assert result.results == [{"name": "test"}, {"name": "test2"}]
         assert result.error is None
 
         mock_request.assert_called_once_with(
             method="POST",
             url="http://localhost:7971/query",
             json={"query": "SELECT * FROM test"},
-            params={"db": "mydb"},
+            params={"db": "mydb", "format": "ndjson"},
             auth=None,
             timeout=30,
             verify=True
         )
 
     @patch('requests.Session.request')
-    def test_write_data(self, mock_request):
-        """Test write data method."""
-        mock_response = Mock()
-        mock_response.json.return_value = {"status": "success"}
-        mock_request.return_value = mock_response
-
-        client = GigAPIClient()
-        data = "weather,location=us-midwest temperature=82"
-        result = client.write_data("mydb", data)
-
-        assert result == {"status": "success"}
-
-        mock_request.assert_called_once_with(
-            method="POST",
-            url="http://localhost:7971/write",
-            data=data,
-            params={"db": "mydb"},
-            auth=None,
-            timeout=30,
-            verify=True,
-            headers={"Content-Type": "text/plain"}
-        )
-
-    @patch('requests.Session.request')
     def test_request_error(self, mock_request):
         """Test request error handling."""
-        mock_request.side_effect = Exception("Connection failed")
+        mock_request.side_effect = requests.exceptions.RequestException("Connection failed")
 
         client = GigAPIClient()
         

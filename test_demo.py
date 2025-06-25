@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Simple test script to verify GigAPI MCP server with public demo."""
 
-import asyncio
 import json
 import logging
 from mcp_gigapi.client import GigAPIClient
@@ -12,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-async def test_demo_connection():
+def test_demo_connection():
     """Test connection to the public GigAPI demo."""
     print("🔗 Testing connection to GigAPI demo at https://gigapi.fly.dev")
     
@@ -88,12 +87,11 @@ async def test_demo_connection():
             print("⚠️  No databases found, skipping database-specific tests")
         
         print("\n🎉 All tests completed successfully!")
-        return True
-        
+        assert True
     except Exception as e:
         print(f"\n❌ Test failed with error: {e}")
         logger.exception("Test failed")
-        return False
+        assert False, f"Test failed with error: {e}"
 
 
 def test_mcp_tools_creation():
@@ -123,10 +121,10 @@ def test_mcp_tools_creation():
     for expected_tool in expected_tools:
         if expected_tool not in tool_names:
             print(f"❌ Missing expected tool: {expected_tool}")
-            return False
+            assert False, f"Missing expected tool: {expected_tool}"
     
     print("✅ All expected tools created successfully!")
-    return True
+    assert True
 
 
 if __name__ == "__main__":
@@ -137,7 +135,7 @@ if __name__ == "__main__":
     tools_ok = test_mcp_tools_creation()
     
     # Test demo connection
-    demo_ok = asyncio.run(test_demo_connection())
+    demo_ok = test_demo_connection()
     
     print("\n" + "=" * 50)
     if tools_ok and demo_ok:

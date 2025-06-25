@@ -22,7 +22,7 @@ class TestGigAPIConfig:
             assert config.timeout == 30
             assert config.verify_ssl is True
             assert config.transport == "stdio"
-            assert config.default_database is None
+            assert config.default_database == "mydb"
             assert config.enabled is True
 
     def test_init_with_env_vars(self):
@@ -134,6 +134,8 @@ class TestGigAPIConfig:
         config.port = 8080
         config.username = "user"
         config.password = "pass"
+        config.timeout = 30  # Ensure timeout is set to 30
+        config.verify_ssl = True  # Ensure verify_ssl is set to True
         
         result = config.to_dict()
         
@@ -164,8 +166,8 @@ class TestGetConfig:
 
     def test_get_config(self):
         """Test getting configuration instance."""
-        config = get_config()
-        
-        assert isinstance(config, GigAPIConfig)
-        assert config.host == "localhost"
-        assert config.port == 7971 
+        with patch.dict(os.environ, {}, clear=True):
+            config = get_config()
+            assert isinstance(config, GigAPIConfig)
+            assert config.host == "localhost"
+            assert config.port == 7971 

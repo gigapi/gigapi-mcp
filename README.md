@@ -1,4 +1,8 @@
+# <img src="https://github.com/user-attachments/assets/5b0a4a37-ecab-4ca6-b955-1a2bbccad0b4" />
+
 # GigAPI MCP Server
+[![PyPI - Version](https://img.shields.io/pypi/v/mcp-gigapi)](https://pypi.org/project/mcp-gigapi)
+[![CodeQL](https://github.com/gigapi/gigapi-mcp/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/gigapi/gigapi-mcp/actions/workflows/github-code-scanning/codeql)
 
 An MCP server for GigAPI Timeseries Lake that provides seamless integration with Claude Desktop and other MCP-compatible clients.
 
@@ -125,7 +129,7 @@ uv sync
         "mcp-gigapi"
       ],
       "env": {
-        "GIGAPI_HOST": "your-gigapi-server.com",
+        "GIGAPI_HOST": "your-gigapi-server",
         "GIGAPI_PORT": "7971",
         "GIGAPI_USERNAME": "your_username",
         "GIGAPI_PASSWORD": "your_password",
@@ -233,7 +237,7 @@ GIGAPI_DEFAULT_DATABASE=mydb
 #### For Production with Authentication
 ```bash
 # Required variables
-GIGAPI_HOST=your-gigapi-server.com
+GIGAPI_HOST=your-gigapi-server
 GIGAPI_PORT=7971
 GIGAPI_USERNAME=your_username
 GIGAPI_PASSWORD=your_password

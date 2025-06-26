@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 
 from mcp import Tool
 from pydantic import BaseModel, Field
+from fastmcp.tools import Tool
 
 from .client import GigAPIClient, GigAPIClientError
 
@@ -220,59 +221,44 @@ class GigAPITools:
 
 
 def create_tools(client: GigAPIClient) -> List[Tool]:
-    """Create MCP tools for GigAPI.
-
-    Args:
-        client: GigAPI client instance
-
-    Returns:
-        List of MCP tools
-    """
+    """Create MCP tools for GigAPI using FastMCP Tool.from_function."""
     tools_instance = GigAPITools(client)
-
     return [
-        Tool(
+        Tool.from_function(
+            tools_instance.run_select_query,
             name="run_select_query",
             description="Execute SQL queries on your GigAPI cluster. All queries are executed safely.",
-            inputSchema=QueryInput.model_json_schema(),
-            handler=tools_instance.run_select_query,
         ),
-        Tool(
+        Tool.from_function(
+            lambda input_data: tools_instance.list_databases(input_data.get("database", "mydb")),
             name="list_databases",
             description="List all databases on your GigAPI cluster.",
-            inputSchema=DatabaseInput.model_json_schema(),
-            handler=lambda input_data: tools_instance.list_databases(input_data.get("database", "mydb")),
         ),
-        Tool(
+        Tool.from_function(
+            tools_instance.list_tables,
             name="list_tables",
             description="List all tables in a database.",
-            inputSchema=DatabaseInput.model_json_schema(),
-            handler=tools_instance.list_tables,
         ),
-        Tool(
-            name="get_table_schema",
-            description="Get schema information for a specific table.",
-            inputSchema=DatabaseInput.model_json_schema(),
-            handler=lambda input_data: tools_instance.get_table_schema(
+        Tool.from_function(
+            lambda input_data: tools_instance.get_table_schema(
                 input_data["database"], input_data.get("table", "")
             ),
+            name="get_table_schema",
+            description="Get schema information for a specific table.",
         ),
-        Tool(
+        Tool.from_function(
+            tools_instance.write_data,
             name="write_data",
             description="Write data using InfluxDB Line Protocol format.",
-            inputSchema=WriteDataInput.model_json_schema(),
-            handler=tools_instance.write_data,
         ),
-        Tool(
+        Tool.from_function(
+            lambda _: tools_instance.health_check(),
             name="health_check",
             description="Check the health status of the GigAPI server.",
-            inputSchema={},
-            handler=lambda _: tools_instance.health_check(),
         ),
-        Tool(
+        Tool.from_function(
+            lambda _: tools_instance.ping(),
             name="ping",
             description="Ping the GigAPI server to check connectivity.",
-            inputSchema={},
-            handler=lambda _: tools_instance.ping(),
         ),
     ]

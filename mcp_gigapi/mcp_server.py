@@ -1,12 +1,8 @@
 """Main MCP server for GigAPI."""
 
-import asyncio
 import logging
-import sys
-from typing import Optional
-
-from mcp import ServerSession, StdioServerParameters
-
+from fastmcp import FastMCP
+from fastmcp.tools import Tool
 from .client import GigAPIClient
 from .config import get_config
 from .tools import create_tools
@@ -16,98 +12,37 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("mcp-gigapi")
 
+MCP_SERVER_NAME = "mcp-gigapi"
 
-class GigAPIMCPServer:
-    """GigAPI MCP Server."""
+# Create the FastMCP instance
+gigapi_config = get_config()
+client = GigAPIClient(
+    host=gigapi_config.host,
+    port=gigapi_config.port,
+    username=gigapi_config.username,
+    password=gigapi_config.password,
+    timeout=gigapi_config.timeout,
+    verify_ssl=gigapi_config.verify_ssl,
+)
+mcp = FastMCP(
+    name=MCP_SERVER_NAME,
+    dependencies=[
+        "requests",
+        "python-dotenv",
+        "pydantic",
+    ],
+)
 
-    def __init__(self):
-        """Initialize the MCP server."""
-        self.config = get_config()
-        self.client: Optional[GigAPIClient] = None
-        self.server: Optional[ServerSession] = None
+# Register all tools
+tools = create_tools(client)
+for tool in tools:
+    mcp.add_tool(tool)
 
-    async def initialize(self) -> None:
-        """Initialize the MCP server and GigAPI client."""
-        try:
-            # Validate configuration
-            self.config.validate()
-
-            # Initialize GigAPI client
-            self.client = GigAPIClient(
-                host=self.config.host,
-                port=self.config.port,
-                username=self.config.username,
-                password=self.config.password,
-                timeout=self.config.timeout,
-                verify_ssl=self.config.verify_ssl,
-            )
-
-            # Test connection
-            await self._test_connection()
-
-            # Create MCP server
-            self.server = ServerSession("gigapi")
-
-            # Register tools
-            tools = create_tools(self.client)
-            for tool in tools:
-                self.server.tool(tool)
-
-            logger.info("GigAPI MCP server initialized successfully")
-
-        except Exception as e:
-            logger.error(f"Failed to initialize GigAPI MCP server: {e}")
-            raise
-
-    async def _test_connection(self) -> None:
-        """Test connection to GigAPI server."""
-        try:
-            # Try to ping the server
-            response = self.client.ping()
-            logger.info(f"Successfully connected to GigAPI at {self.config.base_url}")
-            logger.info(f"Ping response: {response}")
-
-        except Exception as e:
-            logger.error(f"Failed to connect to GigAPI: {e}")
-            raise
-
-    async def run(self) -> None:
-        """Run the MCP server."""
-        if not self.server:
-            raise RuntimeError("Server not initialized")
-
-        # Create server parameters based on transport
-        if self.config.transport == "stdio":
-            params = StdioServerParameters()
-        else:
-            raise ValueError(f"Unsupported transport: {self.config.transport}")
-
-        # Run the server
-        async with self.server.run_stdio(params) as stream:
-            logger.info("GigAPI MCP server started")
-            await stream.wait_closed()
-
-
-async def main() -> None:
-    """Main entry point."""
-    try:
-        server = GigAPIMCPServer()
-        await server.initialize()
-        await server.run()
-    except KeyboardInterrupt:
-        logger.info("Server stopped by user")
-    except Exception as e:
-        logger.error(f"Server error: {e}")
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("Server stopped by user")
-    except Exception as e:
-        print(f"Server error: {e}")
-        sys.exit(1)
+def run(transport: str = None):
+    """Run the MCP server with the specified transport (default from config)."""
+    if transport is None:
+        transport = gigapi_config.transport
+    logger.info(f"Starting MCP server with transport: {transport}")
+    mcp.run(transport=transport)

@@ -87,7 +87,7 @@ def test_demo_connection():
             print("⚠️  No databases found, skipping database-specific tests")
 
         print("\n🎉 All tests completed successfully!")
-        assert True
+        return True
     except Exception as e:
         print(f"\n❌ Test failed with error: {e}")
         logger.exception("Test failed")
@@ -124,7 +124,7 @@ def test_mcp_tools_creation():
             raise AssertionError(f"Missing expected tool: {expected_tool}")
 
     print("✅ All expected tools created successfully!")
-    assert True
+    return True
 
 
 if __name__ == "__main__":

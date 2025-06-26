@@ -1,8 +1,9 @@
 """Main MCP server for GigAPI."""
 
 import logging
+
 from fastmcp import FastMCP
-from fastmcp.tools import Tool
+
 from .client import GigAPIClient
 from .config import get_config
 from .tools import create_tools

@@ -3,9 +3,8 @@
 import logging
 from typing import Any, Dict, List
 
-from mcp import Tool
-from pydantic import BaseModel, Field
 from fastmcp.tools import Tool
+from pydantic import BaseModel, Field
 
 from .client import GigAPIClient, GigAPIClientError
 

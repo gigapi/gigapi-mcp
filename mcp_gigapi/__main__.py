@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Entry point for mcp-gigapi package."""
 
-from .mcp_server import run
 from .config import get_config
+from .mcp_server import run
+
 
 def main():
     config = get_config()

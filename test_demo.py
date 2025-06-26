@@ -19,7 +19,7 @@ def test_demo_connection():
     client = GigAPIClient(
         host="gigapi.fly.dev",
         port=443,
-        verify_ssl=True,
+        verify_ssl=False,
         timeout=30
     )
 
